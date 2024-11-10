@@ -1,0 +1,25 @@
+project.description = "CodeKnacker"
+ext.msg = "False"
+
+task generateCode{
+    def code = "1874269"
+    file("code.txt").text = code
+}
+
+task testCode{
+    def code = file("code.txt").text
+    if (code == "1874269") {
+        msg = "True"
+    } else{
+        throw new GradleException("Wrong Code!")
+    }
+}
+
+task Finish(dependsOn: "testCode"){
+    if(msg == "True"){
+        println "korrekter Code"
+    }
+}
+
+
+

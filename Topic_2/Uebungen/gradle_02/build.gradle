@@ -1,0 +1,19 @@
+plugins {
+    id "de.undercouch.download" version "4.1.1"
+}
+
+project.description = "Rezept Raub"
+
+task download(type: Download) {
+    src 'https://www.st.uni-trier.de/Gradle/Rezept.zip'
+    dest "test.zip"
+    onlyIfModified true
+}
+
+task unzip(type: Copy){
+    def oldLocation = file("$buildDir/Rezept.zip")
+    def newLocation = file("$buildDir/dest")
+   
+    from zipTree(oldLocation)
+    into newLocation
+}
