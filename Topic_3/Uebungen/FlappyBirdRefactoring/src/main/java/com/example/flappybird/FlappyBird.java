@@ -1,9 +1,4 @@
-package com.example.flappybird; /**
- * FlappyBird.java
- * Main game class
- *
- * @author Paul Krishnamurthy
- */
+package com.example.flappybird;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,17 +7,17 @@ import java.awt.event.ActionListener;
 
 public class FlappyBird implements ActionListener {
 
+    GamePanel game;
+    Timer gameTimer;
+
     // Game setup constants
     public static final int WIDTH = 375;
     public static final int HEIGHT = 667;
     private static final int DELAY = 12;
-    GamePanel game;
-    Timer gameTimer;
 
     public FlappyBird() {
 
         JFrame frame = new JFrame("Flappy Bird");
-
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(WIDTH, HEIGHT);
 
