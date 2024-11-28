@@ -8,7 +8,6 @@ package com.example.flappybird; /**
 import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
 import java.io.IOException;
-import java.io.File;
 import javax.imageio.ImageIO;
 import java.util.HashMap;
 
@@ -21,6 +20,7 @@ public class Sprites {
 
 	// HashMap of texture objects
 	private static HashMap<String, Texture> textures = new HashMap<String, Texture>();
+	private static HashMap<String, Texture> birdTextures = new HashMap<String, Texture>();
 
 	public Sprites () {
 
@@ -44,17 +44,17 @@ public class Sprites {
 		textures.put("pipe-bottom", new Texture(resize(spriteSheet.getSubimage(84, 323, 26, 160)), 0, 0));
 
 		// Birds
-		textures.put("yellowBird1", new Texture(resize(spriteSheet.getSubimage(31, 491, 17, 12)), 172, 250));
-		textures.put("yellowBird2", new Texture(resize(spriteSheet.getSubimage(59, 491, 17, 12)), 172, 250));
-		textures.put("yellowBird3", new Texture(resize(spriteSheet.getSubimage(3, 491, 17, 12)),  172, 250));
+		birdTextures.put("yellowBird1", new Texture(resize(spriteSheet.getSubimage(31, 491, 17, 12)), 172, 250));
+		birdTextures.put("yellowBird2", new Texture(resize(spriteSheet.getSubimage(59, 491, 17, 12)), 172, 250));
+		birdTextures.put("yellowBird3", new Texture(resize(spriteSheet.getSubimage(3, 491, 17, 12)),  172, 250));
 
-		textures.put("blueBird1",   new Texture(resize(spriteSheet.getSubimage(115, 329, 17, 12)), 172, 250));
-		textures.put("blueBird2",   new Texture(resize(spriteSheet.getSubimage(115, 355, 17, 12)), 172, 250));
-		textures.put("blueBird3",   new Texture(resize(spriteSheet.getSubimage(87, 491, 17, 12)), 172, 250));
+		birdTextures.put("blueBird1",   new Texture(resize(spriteSheet.getSubimage(115, 329, 17, 12)), 172, 250));
+		birdTextures.put("blueBird2",   new Texture(resize(spriteSheet.getSubimage(115, 355, 17, 12)), 172, 250));
+		birdTextures.put("blueBird3",   new Texture(resize(spriteSheet.getSubimage(87, 491, 17, 12)), 172, 250));
 
-		textures.put("redBird1",    new Texture(resize(spriteSheet.getSubimage(115, 407, 17, 12)), 172, 250));
-		textures.put("redBird2",    new Texture(resize(spriteSheet.getSubimage(115, 433, 17, 12)), 172, 250));
-		textures.put("redBird3",    new Texture(resize(spriteSheet.getSubimage(115, 381, 17, 12)), 172, 250));
+		birdTextures.put("redBird1",    new Texture(resize(spriteSheet.getSubimage(115, 407, 17, 12)), 172, 250));
+		birdTextures.put("redBird2",    new Texture(resize(spriteSheet.getSubimage(115, 433, 17, 12)), 172, 250));
+		birdTextures.put("redBird3",    new Texture(resize(spriteSheet.getSubimage(115, 381, 17, 12)), 172, 250));
 
 		// Buttons
 		textures.put("playButton",   new Texture(resize(spriteSheet.getSubimage(354, 118, 52, 29)), 34, 448));
@@ -127,9 +127,12 @@ public class Sprites {
 	 * 
 	 * @return     Texture
 	 */
-	public HashMap<String, Texture> getGameTextures () {
-		return textures;
+	public HashMap<String, Texture> getGameTextures (String sprite) {
+        if (sprite.equals("bird")) {
+            return birdTextures;
+        } else {
+            return textures;
+        }
 	}
-
 }
 

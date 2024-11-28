@@ -1,0 +1,32 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class Animation
+class Audio
+class Bird
+class FlappyBird
+class GamePanel
+class Helper
+class Highscore
+class Pipe
+class Sprites
+class Texture
+
+FlappyBird "1" *-[#595959,plain]-> "game\n1" GamePanel  
+FlappyBird  -[#595959,dashed]->  GamePanel  : "«create»"
+GamePanel  "1" *-[#595959,plain]-> "audio\n1" Audio      
+GamePanel   -[#595959,dashed]->  Audio      : "«create»"
+GamePanel  "1" *-[#595959,plain]-> "gameBird\n1" Bird       
+GamePanel   -[#595959,dashed]->  Bird       : "«create»"
+GamePanel  "1" *-[#595959,plain]-> "highscore\n1" Highscore  
+GamePanel   -[#595959,dashed]->  Highscore  : "«create»"
+GamePanel   -[#595959,dashed]->  Pipe       : "«create»"
+GamePanel  "1" *-[#595959,plain]-> "pipes\n*" Pipe       
+GamePanel   -[#595959,dashed]->  Sprites    : "«create»"
+GamePanel  "1" *-[#595959,plain]-> "textures\n*" Texture    
+Sprites     -[#595959,dashed]->  Texture    : "«create»"
+Sprites    "1" *-[#595959,plain]-> "textures\n*" Texture    
+@enduml

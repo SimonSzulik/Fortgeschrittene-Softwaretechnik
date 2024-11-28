@@ -8,18 +8,15 @@ package com.example.flappybird; /**
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.Random;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.InputStream;
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.awt.image.BufferedImage;
 import java.util.Calendar;
 
 public class GamePanel extends JPanel implements KeyListener, MouseListener {
 
-	private Random rand;
 	private Calendar cal;
 	
 	////////////////////
@@ -27,13 +24,13 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 	////////////////////
 	
 	// Fonts
-	private Font flappyFontBase, 
-				 flappyFontReal, 
+	private Font flappyFontBase,
+				 flappyFontReal,
 				 flappyScoreFont,
 				 flappyMiniFont = null;
 
 	// Textures
-	public static HashMap<String, Texture> textures = new Sprites().getGameTextures();	
+	public static HashMap<String, Texture> textures = new Sprites().getGameTextures("tes");
 	
 	// Moving base effect
 	private static int baseSpeed    = 2;
@@ -52,7 +49,6 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 	private Point clickedPoint = new Point(-1, -1); // Store point when player clicks 
 	private boolean scoreWasGreater;                // If score was greater than previous highscore
 	private boolean darkTheme;                      // Boolean to show dark or light screen
-	private String randomBird;                      // Random bird color
 	private String medal;                           // Medal to be awarded after each game
 	public ArrayList<Pipe> pipes;                   // Arraylist of Pipe objects
 
@@ -62,8 +58,6 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 
 	public GamePanel () {
-
-		rand = new Random();
 
 		// Try to load ttf file
 		try {
@@ -115,23 +109,11 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 		cal = Calendar.getInstance();
 		int currentHour = cal.get(Calendar.HOUR_OF_DAY);
 
-		// Array of bird colors
-		String[] birds = new String[] {
-			"yellow",
-			"blue",
-			"red"
-		};
-
 		// Set random scene assets
 		darkTheme = currentHour > 12; // If we should use the dark theme
-		randomBird = birds[rand.nextInt(3)]; // Random bird color
 
 		// Game bird
-		gameBird = new Bird(randomBird, 172, 250, new BufferedImage[] {
-			textures.get(randomBird + "Bird1").getImage(),
-			textures.get(randomBird + "Bird2").getImage(),
-			textures.get(randomBird + "Bird3").getImage()
-		});
+		gameBird = new Bird(172, 250);
 
 		// Remove old pipes
 		pipes = new ArrayList<Pipe>();
@@ -158,11 +140,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 		// Only move screen if bird is alive
 		if (gameBird.isAlive()) {
-
 			// Move base
 			baseCoords[0] = baseCoords[0] - baseSpeed < -435 ? 435 : baseCoords[0] - baseSpeed;
 			baseCoords[1] = baseCoords[1] - baseSpeed < -435 ? 435 : baseCoords[1] - baseSpeed;
-
 		}
 
 		// Background
@@ -209,10 +189,8 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 					gameOver(g);
 
 				}
-
 				break;
 		}
-
 	}
 
 	/////////////////////////
@@ -258,12 +236,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 			textures.get("titleText").getY(), null);
 
 		// Buttons
-		g.drawImage(textures.get("playButton").getImage(),
-			textures.get("playButton").getX(),
-			textures.get("playButton").getY(), null);
-		g.drawImage(textures.get("leaderboard").getImage(),
-			textures.get("leaderboard").getX(),
-			textures.get("leaderboard").getY(), null);
+		drawButtons(g);
 		g.drawImage(textures.get("rateButton").getImage(),
 			textures.get("rateButton").getX(),
 			textures.get("rateButton").getY(), null);
@@ -273,6 +246,15 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 		g.setFont(flappyMiniFont); // Change font
 		drawCentered("www.PaulKr.com", FlappyBird.WIDTH, FlappyBird.HEIGHT, 630, g);
 
+	}
+
+	public void drawButtons(Graphics g){
+		g.drawImage(textures.get("playButton").getImage(),
+				textures.get("playButton").getX(),
+				textures.get("playButton").getY(), null);
+		g.drawImage(textures.get("leaderboard").getImage(),
+				textures.get("leaderboard").getX(),
+				textures.get("leaderboard").getY(), null);
 	}
 
 	/////////////////
@@ -492,13 +474,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 		}
 
 		// Buttons
-		g.drawImage(textures.get("playButton").getImage(),
-			textures.get("playButton").getX(),
-			textures.get("playButton").getY(), null);
-		g.drawImage(textures.get("leaderboard").getImage(),
-			textures.get("leaderboard").getX(),
-			textures.get("leaderboard").getY(), null);
-
+		drawButtons(g);
 	}
 
 
@@ -508,7 +484,6 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 	public void keyTyped (KeyEvent e) {}
 	public void keyReleased (KeyEvent e) {}
-
 	public void keyPressed (KeyEvent e) {
 
 		int keyCode = e.getKeyCode();
@@ -566,12 +541,15 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 					JOptionPane.ERROR_MESSAGE);
 			}
 
-			if (gameBird.isAlive()) {
-
-				if (isTouching(textures.get("rateButton").getRect())) {
-					Helper.openURL("http://paulkr.com"); // Open website
+			if (isTouching(textures.get("rateButton").getRect())) {
+				try {
+					if (Desktop.isDesktopSupported()) {
+						Desktop.getDesktop().browse(new URI("http://www.paulkr.com"));
+					}
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					System.out.println("Sorry could not open URL...");
 				}
-
 			}
 
 		} else if (gameState == GAME) {
@@ -604,13 +582,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener {
 						"Oops!",
 						JOptionPane.ERROR_MESSAGE);
 				}
-
 			}
-			
 		}
-
 	}
-
-
 }
-

@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.Toolkit;
 
-public class FlappyBird extends JFrame implements ActionListener {
+public class FlappyBird implements ActionListener {
 
 	GamePanel game;
 	Timer gameTimer;
@@ -21,23 +21,24 @@ public class FlappyBird extends JFrame implements ActionListener {
 
 	public FlappyBird () {
 
-		super("Flappy Bird");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(WIDTH, HEIGHT);
+		JFrame frame = new JFrame("Flappy Bird");
+
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(WIDTH, HEIGHT);
 
 		// Game timer
 		gameTimer = new Timer(DELAY, this);
 		gameTimer.start();
-  
-  		// Add Panel to Frame
+
+		// Add Panel to Frame
 		game = new GamePanel();
-		add(game);
+		frame.add(game);
 
 		// Set game icon
-		setIconImage(Toolkit.getDefaultToolkit().getImage("res/img/icons.png"));
+		frame.setIconImage(Toolkit.getDefaultToolkit().getImage("res/img/icons.png"));
 
-		setResizable(false);
-		setVisible(true);
+		frame.setResizable(false);
+		frame.setVisible(true);
 	}
 
 	public void actionPerformed (ActionEvent e) {

@@ -5,16 +5,18 @@ package com.example.flappybird; /**
  * @author  Paul Krishnamurthy
  */
 
-import javax.swing.JPanel;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 import java.awt.Graphics;
+import java.util.HashMap;
 
-public class Bird extends JPanel {
+public class Bird{
 
 	// Bird attributes
 	public String color;
 	private int x, y;
 	private boolean isAlive = true;
+	private Random rand= new Random();
 	
 	// Bird constants
 	private int FLOAT_MULTIPLIER      = -1;
@@ -31,15 +33,22 @@ public class Bird extends JPanel {
 	private double delay              = 0;
 	private double rotation           = 0;
 
+	// Bird Textures and Colors
+	public static HashMap<String, Texture> birdTextures = new Sprites().getGameTextures("bird");
+	String[] colors = {"yellow", "blue", "red"};
+
 	// Bird sprites
 	private BufferedImage[] sprites;
 
-
-	public Bird (String color, int x, int y, BufferedImage[] s) {
-		this.color = color;
+	public Bird (int x, int y) {
+		this.color = colors[rand.nextInt(colors.length)];
 		this.x = x;
 		this.y = y;
-		this.sprites = s;
+		this.sprites = new BufferedImage[] {
+				birdTextures.get(color + "Bird1").getImage(),
+				birdTextures.get(color + "Bird2").getImage(),
+				birdTextures.get(color + "Bird3").getImage()
+		};
 	}
 
 	/**
@@ -91,7 +100,6 @@ public class Bird extends JPanel {
 		} else if (y > 280) {
 			FLOAT_MULTIPLIER *= -1;
 		}
-
 	}
 
 	/**
@@ -124,7 +132,6 @@ public class Bird extends JPanel {
 			y += (int) velocity;
 
 		} else {
-
 			// Play audio and set state to dead
 			GamePanel.audio.hit();
 			isAlive = false;
