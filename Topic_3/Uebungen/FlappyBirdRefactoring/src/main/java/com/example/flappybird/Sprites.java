@@ -1,138 +1,115 @@
-package com.example.flappybird; /**
- * Sprites.java
- * Cuts up the main sprite sheet
- *
- * @author  Paul Krishnamurthy
- */
+package com.example.flappybird;
 
-import java.awt.image.BufferedImage;
-import java.awt.Graphics2D;
-import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class Sprites {
 
-	// Resize factor to match frame size
-	private static final double RESIZE_FACTOR = 2.605;
+    private static BufferedImage spriteSheet;
 
-	private static BufferedImage spriteSheet = null;
+    // HashMap of texture objects
+    private static final HashMap<String, Texture> gameTextures = new HashMap<>();
+    private static final HashMap<String, Texture> birdTextures = new HashMap<>();
 
-	// HashMap of texture objects
-	private static HashMap<String, Texture> textures = new HashMap<String, Texture>();
-	private static HashMap<String, Texture> birdTextures = new HashMap<String, Texture>();
+    public Sprites() {
 
-	public Sprites () {
-
-		// Try to load sprite sheet, exit program if cannot
-
-		try {
-			spriteSheet = ImageIO.read(this.getClass().getResource("/res/img/spriteSheet.png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("Could not load sprite sheet.");
-			System.exit(-1); // Exit program if file could not be found
-			return;
-		}
-
-		// Backgrounds
-		textures.put("background1", new Texture(resize(spriteSheet.getSubimage(0, 0, 144, 256)),   0, 0));
-		textures.put("background2", new Texture(resize(spriteSheet.getSubimage(146, 0, 144, 256)), 0, 0));
-
-		// Pipes
-		textures.put("pipe-top",    new Texture(resize(spriteSheet.getSubimage(56, 323, 26, 160)), 0, 0));
-		textures.put("pipe-bottom", new Texture(resize(spriteSheet.getSubimage(84, 323, 26, 160)), 0, 0));
-
-		// Birds
-		birdTextures.put("yellowBird1", new Texture(resize(spriteSheet.getSubimage(31, 491, 17, 12)), 172, 250));
-		birdTextures.put("yellowBird2", new Texture(resize(spriteSheet.getSubimage(59, 491, 17, 12)), 172, 250));
-		birdTextures.put("yellowBird3", new Texture(resize(spriteSheet.getSubimage(3, 491, 17, 12)),  172, 250));
-
-		birdTextures.put("blueBird1",   new Texture(resize(spriteSheet.getSubimage(115, 329, 17, 12)), 172, 250));
-		birdTextures.put("blueBird2",   new Texture(resize(spriteSheet.getSubimage(115, 355, 17, 12)), 172, 250));
-		birdTextures.put("blueBird3",   new Texture(resize(spriteSheet.getSubimage(87, 491, 17, 12)), 172, 250));
-
-		birdTextures.put("redBird1",    new Texture(resize(spriteSheet.getSubimage(115, 407, 17, 12)), 172, 250));
-		birdTextures.put("redBird2",    new Texture(resize(spriteSheet.getSubimage(115, 433, 17, 12)), 172, 250));
-		birdTextures.put("redBird3",    new Texture(resize(spriteSheet.getSubimage(115, 381, 17, 12)), 172, 250));
-
-		// Buttons
-		textures.put("playButton",   new Texture(resize(spriteSheet.getSubimage(354, 118, 52, 29)), 34, 448));
-		textures.put("leaderboard",  new Texture(resize(spriteSheet.getSubimage(414, 118, 52, 29)), 203, 448));
-		textures.put("rateButton",   new Texture(resize(spriteSheet.getSubimage(465, 1, 31, 18)),   147, 355));
-		
-		// Helpful / Text
-		textures.put("newHighscore", new Texture(resize(spriteSheet.getSubimage(112, 501, 16, 7)),  210, 305));
-		textures.put("titleText",    new Texture(resize(spriteSheet.getSubimage(351, 91, 89, 24)),  72, 100));
-		textures.put("getReadyText", new Texture(resize(spriteSheet.getSubimage(295, 59, 92, 25)),  68, 180));
-		textures.put("gameOverText", new Texture(resize(spriteSheet.getSubimage(395, 59, 96, 21)),  62, 100));
-		textures.put("instructions", new Texture(resize(spriteSheet.getSubimage(292, 91, 57, 49)),  113, 300));
-
-		// SCORE IMAGES
-		
-		// Large numbers
-		textures.put("score-0", new Texture(resize(spriteSheet.getSubimage(496, 60, 12, 18)), 0, 0));
-		textures.put("score-1", new Texture(resize(spriteSheet.getSubimage(136, 455, 8, 18)), 0, 0));
-		
-		int score = 2;
-		for (int i = 292; i < 335; i += 14) {
-			textures.put("score-" + score,       new Texture(resize(spriteSheet.getSubimage(i, 160, 12, 18)), 0, 0));
-			textures.put("score-" + (score + 4), new Texture(resize(spriteSheet.getSubimage(i, 184, 12, 18)), 0, 0));
-			score++;
-		}
-
-		// Mini numbers
-		score = 0;
-		for (int i = 323; score < 10; i += 9) {
-			textures.put("mini-score-" + score, new Texture(resize(spriteSheet.getSubimage(138, i, 10, 7)), 0, 0));
-			score ++;
-			if (score % 2 == 0) { i += 8; }
-		}
-
-		// Medals
-		textures.put("bronze",   new Texture(resize(spriteSheet.getSubimage(112, 477, 22, 22)),  73, 285));
-		textures.put("silver",   new Texture(resize(spriteSheet.getSubimage(112, 453, 22, 22)),  73, 285));
-		textures.put("gold",     new Texture(resize(spriteSheet.getSubimage(121, 282, 22, 22)),  73, 285));
-		textures.put("platinum", new Texture(resize(spriteSheet.getSubimage(121, 258, 22, 22)),  73, 285));
-
-		// Other assets
-		textures.put("base",      new Texture(resize(spriteSheet.getSubimage(292, 0, 168, 56)),  0, 521));
-		textures.put("scoreCard", new Texture(resize(spriteSheet.getSubimage(3, 259, 113, 57)),  40, 230));
-
-	}
-
-	/**
-	 * Resizes a BufferedImage
-	 * 
-	 * @param  image     BufferedImage object
-	 * @return           New resized image
-	 */
-	private static BufferedImage resize (BufferedImage image) {
-
-		// New width and height
-		int newWidth = (int) (image.getWidth() * RESIZE_FACTOR);
-		int newHeight = (int) (image.getHeight() * RESIZE_FACTOR);
-
-		// Create new BufferedImage with updated width and height
-	    BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-	    Graphics2D g = resizedImage.createGraphics();
-	    g.drawImage(image, 0, 0, newWidth, newHeight, null);
-	    g.dispose();
-
-	    return resizedImage;
-	}
-
-	/**
-	 * Public getter method for Textures HashMap
-	 * 
-	 * @return     Texture
-	 */
-	public HashMap<String, Texture> getGameTextures (String sprite) {
-        if (sprite.equals("bird")) {
-            return birdTextures;
-        } else {
-            return textures;
+        try {
+            spriteSheet = ImageIO.read(this.getClass().getResource("/res/img/spriteSheet.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Could not load sprite sheet.");
+            System.exit(-1); // Exit program if file could not be found
+            return;
         }
-	}
-}
 
+        // Backgrounds
+        putTexture(gameTextures,"background1", 0, 0, 0, 0, 144, 256);
+        putTexture(gameTextures,"background2", 146, 0, 0, 0, 144, 256);
+
+        // Pipes
+        putTexture(gameTextures,"pipe-top", 56, 323, 0, 0, 26, 160);
+        putTexture(gameTextures,"pipe-bottom", 84, 323, 0, 0, 26, 160);
+
+        // Birds
+        putTexture(birdTextures,"yellowBird1", 31, 491, 172, 250, 17, 12);
+        putTexture(birdTextures,"yellowBird2", 59, 491, 172, 250, 17, 12);
+        putTexture(birdTextures,"yellowBird3", 3, 491, 172, 250, 17, 12);
+
+        putTexture(birdTextures,"blueBird1", 115, 329, 172, 250, 17, 12);
+        putTexture(birdTextures,"blueBird2", 115, 355, 172, 250, 17, 12);
+        putTexture(birdTextures,"blueBird3", 87, 491, 172, 250, 17, 12);
+
+        putTexture(birdTextures,"redBird1", 115, 407, 172, 250, 17, 12);
+        putTexture(birdTextures,"redBird2", 115, 433, 172, 250, 17, 12);
+        putTexture(birdTextures,"redBird3", 115, 381, 172, 250, 17, 12);
+
+        // Buttons
+        putTexture(gameTextures,"playButton", 354, 118, 34, 448, 52, 29);
+        putTexture(gameTextures,"leaderboard", 414, 118, 203, 448, 52, 29);
+        putTexture(gameTextures,"rateButton", 465, 1, 147, 355, 31, 18);
+
+        // Helpful / Text
+        putTexture(gameTextures,"newHighscore", 112, 501, 210, 305, 16, 7);
+        putTexture(gameTextures,"titleText", 351, 91, 72, 100, 89, 24);
+        putTexture(gameTextures,"getReadyText", 295, 59, 68, 180, 92, 25);
+        putTexture(gameTextures,"gameOverText", 395, 59, 62, 100, 96, 21);
+        putTexture(gameTextures,"instructions", 292, 91, 113, 300, 57, 49);
+
+        // SCORE IMAGES
+        putTexture(gameTextures,"score-0", 496, 60, 0, 0, 12, 18);
+        putTexture(gameTextures,"score-1", 136, 455, 0, 0, 8, 18);
+
+        int score = 2;
+        for (int i = 292; i < 335; i += 14) {
+            putTexture(gameTextures,"score-" + score, i, 160, 0, 0, 12, 18);
+            putTexture(gameTextures,"score-" + (score + 4), i, 184, 0, 0, 12, 18);
+            score++;
+        }
+
+        // Mini numbers
+        score = 0;
+        for (int i = 323; score < 10; i += 9) {
+            putTexture(gameTextures,"mini-score-" + score, 138, i, 0, 0, 10, 7);
+            score++;
+            if (score % 2 == 0) {
+                i += 8;
+            }
+        }
+
+        // Medals
+        putTexture(gameTextures,"bronze", 112, 477, 73, 285, 22, 22);
+        putTexture(gameTextures,"silver", 112, 453, 73, 285, 22, 22);
+        putTexture(gameTextures,"gold", 121, 282, 73, 285, 22, 22);
+        putTexture(gameTextures,"platinum", 121, 258, 73, 285, 22, 22);
+
+        // Other assets
+        putTexture(gameTextures,"base", 292, 0, 0, 521, 168, 56);
+        putTexture(gameTextures,"scoreCard", 3, 259, 40, 230, 113, 57);
+    }
+
+    private void putTexture(HashMap<String, Texture> textures, String name, int texX, int texY, int panX, int panY, int width, int height) {
+        BufferedImage subimage = spriteSheet.getSubimage(texX, texY, width, height);
+        Texture texture = new Texture(resize(subimage), panX, panY);
+        textures.put(name, texture);
+    }
+
+    private static BufferedImage resize(BufferedImage image) {
+        // New width and height
+        int newWidth = (int) (image.getWidth() * 2.605);
+        int newHeight = (int) (image.getHeight() * 2.605);
+
+        // Create new BufferedImage with updated width and height
+        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = resizedImage.createGraphics();
+        g.drawImage(image, 0, 0, newWidth, newHeight, null);
+        g.dispose();
+
+        return resizedImage;
+    }
+
+    public HashMap<String, Texture> getGameTextures() {return gameTextures;}
+    public HashMap<String, Texture> getBirdTextures() {return birdTextures;}
+}
