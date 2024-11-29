@@ -1,236 +1,146 @@
 package com.example.flappybird;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
+import java.awt.event.*;
+import javax.swing.*;
+import java.net.URI;
 
-public class GamePanel extends JPanel implements KeyListener, MouseListener {
 
-    // Game states
-    final static int MENU = 0;
-    final static int GAME = 1;
+public class GamePanel extends PanelDrawer implements KeyListener, MouseListener {
 
-    ////////////////////
-    // Game variables //
-    private InputManager inputManager;
-    private DrawingManager drawingManager;
-    // Textures
-    public static HashMap<String, Texture> textures = new Sprites().getGameTextures();
-    // Moving base effect
-    private static final int baseSpeed = 2;
-    private static final int[] baseCoords = {0, 435};
-    public boolean ready = false;                   // If game has loaded
-    public ArrayList<Pipe> pipes;                   // Arraylist of Pipe objects
-    private Calendar cal;
-    ////////////////////
+	public GamePanel () {
+		restart(); // Reset game variables
 
-    public int getBaseSpeed() {
-        return baseSpeed;
-    }
+		// Input listeners
+		addKeyListener(this);
+		addMouseListener(this);
+	}
 
-    // Fonts
-    private Font flappyFontBase,
-            flappyFontReal,
-            flappyScoreFont,
-            flappyMiniFont = null;
-    private int gameState = MENU;
-    private int score;           // Player score
+	public void addNotify() {
+		super.addNotify();
+		requestFocus();
+		ready = true;
+	}
 
-    public int getPipeDistTracker() {
-        return pipeDistTracker;
-    }
+	//////////////////////
+	// Keyboard actions //
+	//////////////////////
 
-    public void setPipeDistTracker(int pipeDistTracker) {
-        this.pipeDistTracker = pipeDistTracker;
-    }
+	private boolean isTouching (Rectangle r) {
+		return r.contains(clickedPoint);
+	}
 
-    private int pipeDistTracker; // Distance between pipes
-    private boolean inStartGameState = false;       // To show instructions scren
+	public void keyTyped (KeyEvent e) {}
+	public void keyReleased (KeyEvent e) {}
 
-    public int[] getBaseCoords(){
-        return baseCoords;
-    }
+	public void keyPressed (KeyEvent e) {
 
-    public int getScore(){
-        return score;
-    }
+		int keyCode = e.getKeyCode();
 
-    public void setScore(int score){
-        this.score = score;
-    }
+		if (gameState == MENU) {
 
-    public void setClickedPoint(Point clickedPoint) {
-        this.clickedPoint = clickedPoint;
-    }
+			// Start game on 'enter' key
+			if (keyCode == KeyEvent.VK_ENTER) {
+				gameState = GAME;
+				inStartGameState = true;
+			}
 
-    public int getGameState() {
-        return gameState;
-    }
+		} else if (gameState == GAME && gameBird.isAlive()) {
 
-    public void setGameState(int gameState) {
-        this.gameState = gameState;
-    }
+			if (keyCode == KeyEvent.VK_SPACE) {
 
-    public Bird getGameBird() {
-        return gameBird;
-    }
+				// Exit instructions state
+				if (inStartGameState) {
+					inStartGameState = false;
+				}
 
-    public boolean isInStartGameState() {
-        return inStartGameState;
-    }
+				// Jump and play audio even if in instructions state
+				gameBird.jump();
+				audio.jump();
+			}
+		}
+	}
 
-    public void setInStartGameState(boolean inStartGameState) {
-        this.inStartGameState = inStartGameState;
-    }
+	///////////////////
+	// Mouse actions //
+	///////////////////
 
-    private Point clickedPoint = new Point(-1, -1); // Store point when player clicks
-    private boolean scoreWasGreater;                // If score was greater than previous highscore
+	public void mouseExited (MouseEvent e) {}
+	public void mouseEntered (MouseEvent e) {}
+	public void mouseReleased (MouseEvent e) {}
+	public void mouseClicked (MouseEvent e) {}
 
-    public boolean isDarkTheme() {
-        return darkTheme;
-    }
+	public void mousePressed (MouseEvent e) {
 
-    private boolean darkTheme;                      // Boolean to show dark or light screen
+		// Save clicked point
+		clickedPoint = e.getPoint();
 
-    public String getMedal() {
-        return medal;
-    }
+		if (gameState == MENU) {
 
-    public void setMedal(String medal) {
-        this.medal = medal;
-    }
+			if (isTouching(textures.get("playButton").getRect())) {
+				gameState = GAME;
+				inStartGameState = true;
 
-    private String medal;                           // Medal to be awarded after each game
-    private Bird gameBird;
-    private final Highscore highscore = new Highscore();
+			} else if (isTouching(textures.get("leaderboard").getRect())) {
 
-    public Highscore getHighscore() {
-        return highscore;
-    }
+				// Dummy message
+				JOptionPane.showMessageDialog(this, 
+					"We can't access the leaderboard right now!",
+					"Oops!",
+					JOptionPane.ERROR_MESSAGE);
+			}
 
-    public boolean getscoreWasGreater() {
-        return scoreWasGreater;
-    }
+			if (gameBird.isAlive()) {
 
-    public void setscoreWasGreater(boolean scoreWasGreater) {
-        this.scoreWasGreater = scoreWasGreater;
-    }
+				if (isTouching(textures.get("rateButton").getRect())) {
+					try {
+						if (Desktop.isDesktopSupported()) {
+							Desktop.getDesktop().browse(new URI("http://paulkr.com")); // Open website
+						}
+					} catch (Exception ex) {
+						ex.printStackTrace();
+						System.out.println("Sorry could not open URL...");
+					}
+				}
+			}
 
-    public GamePanel() {
+		} else if (gameState == GAME) {
 
-        this.inputManager = new InputManager(this);
-        this.drawingManager = new DrawingManager(this);
-        // Try to load ttf file
-        try {
-            InputStream is = new BufferedInputStream(this.getClass().getResourceAsStream("/res/fonts/flappy-font.ttf"));
-            flappyFontBase = Font.createFont(Font.TRUETYPE_FONT, is);
+			if (gameBird.isAlive()) {
 
-            // Header and sub-header fonts
-            flappyScoreFont = flappyFontBase.deriveFont(Font.PLAIN, 50);
-            flappyFontReal = flappyFontBase.deriveFont(Font.PLAIN, 20);
-            flappyMiniFont = flappyFontBase.deriveFont(Font.PLAIN, 15);
+				// Allow jump with clicks
+				if (inStartGameState) {
+					inStartGameState = false;
+				}
 
-        } catch (Exception ex) {
+				// Jump and play sound
+				gameBird.jump();
+				audio.jump();
 
-            // Exit is font cannot be loaded
-            ex.printStackTrace();
-            System.err.println("Could not load Flappy Font!");
-            System.exit(-1);
-        }
+			} else {
 
-        restart(); // Reset game variables
+				// On game over screen, allow restart and leaderboard buttons
+				if (isTouching(textures.get("playButton").getRect())) {
+					inStartGameState = true;
+					gameState = GAME;
+					restart();
+					gameBird.setGameStartPos();
 
-        // Input listeners
-        addKeyListener(this);
-        addMouseListener(this);
+				} else if (isTouching(textures.get("leaderboard").getRect())) {
 
-    }
+					// Dummy message
+					JOptionPane.showMessageDialog(this, 
+						"We can't access the leaderboard right now!",
+						"Oops!",
+						JOptionPane.ERROR_MESSAGE);
+				}
 
-    /**
-     * To start game after everything has been loaded
-     */
-    public void addNotify() {
-        super.addNotify();
-        requestFocus();
-        ready = true;
-    }
+			}
+			
+		}
 
-    /**
-     * Restarts game by resetting game variables
-     */
-    public void restart() {
+	}
 
-        // Reset game statistics
-        score = 0;
-        pipeDistTracker = 0;
-        scoreWasGreater = false;
 
-        // Get current hour with Calendar
-        // If it is past noon, use the dark theme
-        cal = Calendar.getInstance();
-        int currentHour = cal.get(Calendar.HOUR_OF_DAY);
-
-        // Set random scene assets
-        darkTheme = currentHour > 12; // If we should use the dark theme
-
-        // Game bird
-        gameBird = new Bird(172, 250);
-
-        // Remove old pipes
-        pipes = new ArrayList<>();
-    }
-
-    /**
-     * Checks if point is in rectangle
-     *
-     * @param      r     Rectangle
-     * @return Boolean if point collides with rectangle
-     */
-    public boolean isTouching(Rectangle r) {
-        return r.contains(clickedPoint);
-    }
-
-    public void paintComponent(Graphics g) {
-        drawingManager.paintComponent(g);
-    }
-
-    public void keyTyped(KeyEvent e) {
-        inputManager.keyTyped(e);
-    }
-
-    public void keyReleased(KeyEvent e) {
-        inputManager.keyReleased(e);
-    }
-
-    public void keyPressed(KeyEvent e) {
-        inputManager.keyPressed(e);
-    }
-
-    public void mouseExited(MouseEvent e) {
-        inputManager.mouseExited(e);
-    }
-
-    public void mouseEntered(MouseEvent e) {
-        inputManager.mouseEntered(e);
-    }
-
-    public void mouseReleased(MouseEvent e) {
-        inputManager.mouseReleased(e);
-    }
-
-    public void mouseClicked(MouseEvent e) {
-        inputManager.mouseClicked(e);
-    }
-
-    public void mousePressed(MouseEvent e) {
-        inputManager.mousePressed(e);
-    }
 }
+
