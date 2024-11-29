@@ -1,9 +1,4 @@
-package com.example.flappybird; /**
- * Audio.java
- * Plays all sound effects
- *
- * @author  Paul Krishnamurthy
- */
+package com.example.flappybird;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -16,10 +11,8 @@ public class Audio {
 
 	private void playSound (String sound) {
 
-		// Path to sound file
 		String soundURL = "/res/sound/" + sound + ".wav";
 
-		// Try to load and play sound
 		try {
 		    audioInputStream = AudioSystem.getAudioInputStream(this.getClass().getResource(soundURL));
 		    clip = AudioSystem.getClip();
@@ -31,26 +24,15 @@ public class Audio {
 		}
 	}
 
-	/**
-	 * Public method for bird jump sound
-	 */
 	public void jump () {
 		playSound("jump");
 	}
 
-	/**
-	 * Public method for point sound
-	 */
 	public void point () {
 		playSound("point");
 	}
 
-	/**
-	 * Public method for collision/death sound
-	 */
 	public void hit () {
 		playSound("hit");
 	}
-
 }
-

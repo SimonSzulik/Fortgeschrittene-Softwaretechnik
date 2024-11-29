@@ -1,20 +1,12 @@
-package com.example.flappybird; /**
- * FlappyBird.java
- * Main game class
- *
- * @author  Paul Krishnamurthy
- */
-
+package com.example.flappybird;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.Toolkit;
 
 public class FlappyBird extends JFrame implements ActionListener {
-
-	GamePanel game;
+	InteractivePanel game;
 	Timer gameTimer;
 
-	// Game setup constants
 	public static final int WIDTH  = 375;
 	public static final int HEIGHT = 667;
 	private static final int DELAY = 12;
@@ -25,15 +17,12 @@ public class FlappyBird extends JFrame implements ActionListener {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(WIDTH, HEIGHT);
 
-		// Game timer
 		gameTimer = new Timer(DELAY, this);
 		gameTimer.start();
   
-  		// Add Panel to Frame
-		game = new GamePanel();
+		game = new InteractivePanel();
 		add(game);
 
-		// Set game icon
 		setIconImage(Toolkit.getDefaultToolkit().getImage("res/img/icons.png"));
 
 		setResizable(false);
@@ -41,19 +30,12 @@ public class FlappyBird extends JFrame implements ActionListener {
 	}
 
 	public void actionPerformed (ActionEvent e) {
-
 		if (game != null && game.ready) {
 			game.repaint();
 		}
-
 	}
-
 
 	public static void main(String[] args) {
-
 		FlappyBird game = new FlappyBird();
-
 	}
-
 }
-

@@ -1,12 +1,8 @@
-package com.example.flappybird; /**
- * Bird.java
- * Handles bird's state and actions
- *
- * @author  Paul Krishnamurthy
- */
+package com.example.flappybird;
 
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.awt.Graphics;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -36,10 +32,11 @@ public class Bird{
 	private double gravity            = .41;
 	private double delay              = 0;
 	private double rotation           = 0;
+	private static double currentFrame = 0;
 
-	// Bird sprites
+	// Bird sprites and Sounds
+	public static Audio audio   = new Audio();
 	private BufferedImage[] sprites;
-
 
 	public Bird(int x, int y) {
 		this.color = colors[rand.nextInt(colors.length)];
@@ -51,123 +48,100 @@ public class Bird{
 				textures.get(color + "Bird3").getImage()};
 	}
 
-	/**
-	 * @return     Bird's x-coordinate
-	 */
 	public int getX () {
 		return x;
 	}
 
-	/**
-	 * @return     Bird's y-coordinate
-	 */
 	public int getY () {
 		return y;
 	}
 
-	/**
-	 * @return     If bird is alive
-	 */
 	public boolean isAlive () {
 		return isAlive;
 	}
 
-	/**
-	 * Kills bird
-	 */
 	public void kill () {
 		isAlive = false;
+		audio.hit();
 	}
 
-	/**
-	 * Set new coordinates when starting game
-	 */
 	public void setGameStartPos () {
 		x = STARTING_BIRD_X;
 		y = STARTING_BIRD_Y;
 	}
 
-	/**
-	 * Floating bird effect on menu screen
-	 */
 	public void menuFloat () {
-
 		y += FLOAT_MULTIPLIER;
 
-		// Change direction within floating range
-		if (y < 220) {
-			FLOAT_MULTIPLIER *= -1;
-		} else if (y > 280) {
+		if (y < 220 ||  y > 280) {
 			FLOAT_MULTIPLIER *= -1;
 		}
-
 	}
 
-	/**
-	 * Bird jump
-	 */
 	public void jump () {
-
 		if (delay < 1) {
 			velocity = -SHIFT;
 			delay = SHIFT;
 		}
-
+		audio.jump();
 	}
 
-	/**
-	 * Bird movement during the game
-	 */
+	public void score(){
+		audio.point();
+	}
+
 	public void inGame () {
 
-		// If the bird did not hit the base, lower it
 		if (y < BASE_COLLISION) {
-
-			// Change and velocity
 			velocity += gravity;
 
-			// Lower delay if possible
 			if (delay > 0) { delay--; }
 
-			// Add rounded velocity to y-coordinate
 			y += (int) velocity;
-
 		} else {
-
-			// Play audio and set state to dead
-			GamePanel.audio.hit();
+			audio.hit();
 			isAlive = false;
 		}
-
 	}
 
-	/**
-	 * Renders bird
-	 */
+	public static void animate (Graphics g, BufferedImage[] sprites, int x, int y, double speed, double angle) {
+
+		Graphics2D g2d        = (Graphics2D) g;
+		AffineTransform trans = g2d.getTransform();
+		AffineTransform at    = new AffineTransform();
+
+		// Number of frames
+		int count = sprites.length;
+
+		// Rotate the image
+		at.rotate(angle, x + 25, y + 25);
+		g2d.transform(at);
+
+		// Draw the current rotated frame
+		g2d.drawImage(sprites[(int) (Math.round(currentFrame))], x, y, null);
+
+		g2d.setTransform(trans);
+
+		// Switch animation frames
+		if (currentFrame >= count - 1) {
+			currentFrame = 0;
+		} else currentFrame += speed;
+	}
+
 	public void renderBird (Graphics g) {
 
-		// Calculate angle to rotate bird based on y-velocity
 		rotation = ((90 * (velocity + 25) / 25) - 90) * Math.PI / 180;
 		
-		// Divide for clean jump
 		rotation /= 2;
 
-		// Handle rotation offset
-		rotation = rotation > Math.PI / 2 ? Math.PI / 2 : rotation;
+		rotation = Math.min(rotation, Math.PI / 2);
 
 		if (!isAlive()) {
-
-			// Drop bird on death
 			if (y < BASE_COLLISION - 10) {
 				velocity += gravity;
 				y += (int) velocity;
 			}
-
 		}
-
-		// Create bird animation and pass in rotation angle
-		Animation.animate(g, sprites, x, y, .09, rotation);
-
+		animate(g, sprites, x, y, .09, rotation);
 	}
-
 }
