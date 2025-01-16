@@ -1,0 +1,20 @@
+p: Project = input;
+
+list: output mean[string] of float;
+
+counter := visitor {
+    before node: Statement -> {
+        if(node.kind == StatementKind.TRY or node.kind == StatementKind.WITH)
+            list[p.name] << 1;
+        else
+            list[p.name] << 0;
+    }
+};
+            
+visit(p, visitor{
+    before node: CodeRepository -> {
+        snapshot := getsnapshot(node);
+        foreach (i: int; def(snapshot[i]))
+            visit(snapshot[i], counter);
+    }    
+});
